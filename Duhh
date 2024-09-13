@@ -1,0 +1,804 @@
+// whips edits
+PrintEntityInfo(player)
+{
+    traceResult = BulletTrace(player GetEye(), player GetEye() + vectorScale(AnglesToForward(player GetPlayerAngles()), 1000000), 0, player);
+    if (isDefined(traceResult["entity"]))
+    {
+        if (isDefined(traceResult["entity"].origin))
+            Position = traceResult["entity"].origin;
+        else
+            Position = "N/A";
+
+        if (isDefined(traceResult["entity"].angles))
+            Angles = traceResult["entity"].angles;
+        else
+            Angles = "N/A";
+
+        if (isDefined(traceResult["entity"].target))
+            target = traceResult["entity"].target;
+        else
+            target = "N/A";
+
+        if (isDefined(traceResult["entity"].model))
+            model = traceResult["entity"].model;
+        else
+            model = "N/A";
+
+        if (isDefined(traceResult["entity"].fxid))
+            fxid = traceResult["entity"].fxid;
+        else
+            fxid = "N/A";
+
+        if (isDefined(traceResult["entity"].targetname))
+            targetname = traceResult["entity"].targetname;
+        else
+            targetname = "N/A";
+
+        if (isDefined(traceResult["entity"].solid))
+            solid = traceResult["entity"].solid;
+        else
+            solid = "N/A";
+
+        if (isDefined(traceResult["entity"].useable))
+            useable = traceResult["entity"].useable;
+        else
+            useable = "N/A";
+
+        if (isDefined(traceResult["entity"].radius))
+            radius = traceResult["entity"].radius;
+        else
+            radius = "N/A";
+
+        if (isDefined(traceResult["entity"].script_gameobjectname))
+            team = traceResult["entity"].script_gameobjectname;
+        else
+            team = "N/A";
+
+        if (isDefined(traceResult["entity"].classname))
+            classname = traceResult["entity"].classname;
+        else
+            classname = "N/A";
+
+        player iPrintln("Position: " + Position + "\n Angles: " + Angles);
+        wait 1;
+        player iPrintln("target: " + target + "\n model: " + model);
+        wait 1;
+        player iPrintln("fxid: " + fxid + "\n targetname: " + targetname);
+        wait 1;
+        player iPrintlnbold("useable: " + useable + "\n solid: " + solid);
+        wait 1;
+        player iPrintlnbold("radius: " + radius + "\n gameobj: " + team);
+        wait 1;
+        player iPrintlnbold("classname: " + classname);
+    }
+}
+
+//	InitBombs 1 and 2 setup each bombsite sepearatly by targetname depending on map
+
+
+InitBomb()
+{
+
+    entities = getEntArray();
+    bombBrushModels = [];
+
+    // Loop through all the entities
+    for (i = 0; i < entities.size; i++)
+    {
+
+
+        if (!isDefined(entities[i].script_gameobjectname))
+        {
+            continue;
+        }
+
+        // Look for the bomb zones
+        if (entities[i].script_gameobjectname == "sab")
+        {
+
+            // Save the first bomb script model
+            if ((entities[i].classname == "script_model") && (entities[i].targetname == "pf25_auto1" || entities[i].targetname == "pf6470_auto1" || entities[i].targetname == "pf493_auto1" || entities[i].targetname == "pf3203_auto1" || entities[i].targetname == "pf59_auto1" || entities[i].targetname == "pf3833_auto1" || entities[i].targetname == "pf1097_auto1" || entities[i].targetname == "pf1463_auto1" || entities[i].targetname == "pf4658_auto1" || entities[i].targetname == "pf4351_auto1" || entities[i].targetname == "pf70_auto1" || entities[i].targetname == "pf1226_auto1" || entities[i].targetname == "pf7186_auto1" || entities[i].targetname == "pf3314_auto1" || entities[i].targetname == "pf2127_auto1" || entities[i].targetname == "pf2965_auto1" || entities[i].targetname == "pf16_auto1" || entities[i].targetname == "pf19_auto1" || entities[i].targetname == "pf325_auto1" || entities[i].targetname == "pf10390_auto1"))
+            {
+                level.bomb = entities[i];
+            }
+
+            // Save all the bomb brush models
+            if (entities[i].classname == "script_brushmodel")
+            {
+                bombBrushModels[bombBrushModels.size] = entities[i];
+            }
+         }
+	 wait .1;
+    }
+
+    // Make sure we found a bomb
+    if (!isDefined(level.bomb) || bombBrushModels.size == 0)
+    {
+        self iPrintLn("^1Couldn't find a bomb on this map!, Play SnD");
+        return;
+    }
+
+    // Find the corresponding bomb brush model for the bomb script model
+    for (i = 0; i < bombBrushModels.size; i++)
+    {
+        if (distance(level.bomb.origin, bombBrushModels[i].origin) < 75)
+        {
+            level.bombBrushModel = bombBrushModels[i];
+            break;
+        }
+    }
+    if (!isDefined(level.bombBrushModel))
+    {
+        return;
+    }
+
+    // Link to bomb brush model to the bomb script model
+    level.bombBrushModel linkTo(level.bomb);
+    self iPrintln("Bomb 1 ^2Loaded");
+}
+InitBomb2()
+{
+    entities = getEntArray();
+    bombBrushModels = [];
+
+    // Loop through all the entities
+    for (i = 0; i < entities.size; i++)
+    {
+
+
+        if (!isDefined(entities[i].script_gameobjectname))
+        {
+
+            continue;
+        }
+
+        // Look for the bomb zones
+        if (entities[i].script_gameobjectname == "sab")
+        {
+
+            // Save the first bomb script model
+	    if ((entities[i].classname == "script_model") && (entities[i].targetname == "pf20_auto1" || entities[i].targetname == "pf476_auto1" || entities[i].targetname == "pf498_auto1" || entities[i].targetname == "pf3208_auto1" || entities[i].targetname == "pf65_auto1" || entities[i].targetname == "pf3838_auto1" || entities[i].targetname == "pf5519_auto1" || entities[i].targetname == "pf1458_auto1" || entities[i].targetname == "pf4653_auto1" || entities[i].targetname == "pf4356_auto1" || entities[i].targetname == "pf48_auto1" || entities[i].targetname == "pf892_auto1" || entities[i].targetname == "pf7751_auto1" || entities[i].targetname == "pf3309_auto1" || entities[i].targetname == "pf2122_auto1" || entities[i].targetname == "pf2958_auto1" || entities[i].targetname == "pf2263_auto1" || entities[i].targetname == "pf14_auto1" || entities[i].targetname == "pf320_auto1" || entities[i].targetname == "pf9895_auto1"))
+            {
+                level.bomb2 = entities[i];
+            }
+
+            // Save all the bomb brush models
+            if (entities[i].classname == "script_brushmodel")
+            {
+                bombBrushModels[bombBrushModels.size] = entities[i];
+            }
+         }
+	 wait .1;
+    }
+
+    // Make sure we found a bomb
+    if (!isDefined(level.bomb2) || bombBrushModels.size == 0)
+    {
+        self iPrintLn("^1Couldn't find a bomb on this map!, Play SnD");
+        return;
+    }
+
+    // Find the corresponding bomb brush model for the bomb script model
+    for (i = 0; i < bombBrushModels.size; i++)
+    {
+        if (distance(level.bomb2.origin, bombBrushModels[i].origin) < 75)
+        {
+            level.bombBrushModel = bombBrushModels[i];
+            break;
+        }
+    }
+    if (!isDefined(level.bombBrushModel))
+    {
+        return;
+    }
+
+    // Link to bomb brush model to the bomb script model
+    level.bombBrushModel linkTo(level.bomb2);
+    self iPrintln("Bomb 2 ^2Loaded");
+}
+InitBomb3()
+{
+    entities = getEntArray();
+    bombBrushModels = [];
+
+    // Loop through all the entities
+    for (i = 0; i < entities.size; i++)
+    {
+        if (!isDefined(entities[i].script_gameobjectname))
+            continue;
+
+        // Look for the bomb zones
+        if (entities[i].script_gameobjectname == "bombzone")
+        {
+            // Save the first bomb script model
+            if (!isDefined(level.bomb3) && entities[i].classname == "script_model")
+                level.bomb3 = entities[i];
+	    else if(isDefined(level.bomb3) && entities[i].classname == "script_model")
+		level.bomb4 = entities[i];
+            // Save all the bomb brush models
+            if (entities[i].classname == "script_brushmodel")
+                bombBrushModels[bombBrushModels.size] = entities[i];
+        }
+    }
+
+    // Make sure we found a bomb
+    if (!isDefined(level.bomb3) || bombBrushModels.size == 0)
+    {
+        self iPrintLn("^1Couldn't find a bomb on this map!, Play SnD");
+        return;
+    }
+
+    // Find the corresponding bomb brush model for the bomb script model
+    for (i = 0; i < bombBrushModels.size; i++)
+    {
+        if (distance(level.bomb3.origin, bombBrushModels[i].origin) < 50)
+        {
+            level.bombBrushModel3 = bombBrushModels[i];
+        }
+	if (distance(level.bomb4.origin, bombBrushModels[i].origin) < 50)
+        {
+            level.bombBrushModel4 = bombBrushModels[i];
+        }
+    }
+    if (!isDefined(level.bombBrushModel3))
+    {
+        self iPrintLn("^1Couldn't find a brush model for this bomb!");
+        return;
+    }
+    self iPrintLn("Bomb3^2 Loaded");
+    self iPrintLn("Bomb4^2 Loaded");
+    // Link to bomb brush model to the bomb script model
+    level.bombBrushModel3 linkTo(level.bomb3);
+    level.bombBrushModel4 linkTo(level.bomb4);
+}
+
+MoveBomb3()
+{
+    level.bomb3.origin = self ProjectForward(150) - (0, 0, 15);
+
+    // Rotate the bomb according to where the player is currently looking
+    playerAngles = self getPlayerAngles();
+    bombAngles = (level.bomb.angles[0], playerAngles[1] + 90, level.bomb.angles[2]);
+    level.bomb3 rotateTo(bombAngles, 0.01);
+}
+MoveBomb4()
+{
+    level.bomb4.origin = self ProjectForward(150) - (0, 0, 15);
+
+    // Rotate the bomb according to where the player is currently looking
+    playerAngles = self getPlayerAngles();
+    bombAngles = (level.bomb.angles[0], playerAngles[1] + 90, level.bomb.angles[2]);
+    level.bomb4 rotateTo(bombAngles, 0.01);
+}
+MoveBomb2()
+{
+    self iPrintln("MoveBomb function started.");
+
+    // Move the bomb 150 units in front, and 15 below the player
+    // The bomb has to be placed a little lower because it's too high to jump on it
+    level.bomb2.origin = self ProjectForward(150) - (0, 0, 15);
+
+    // Rotate the bomb according to where the player is currently looking
+    playerAngles = self getPlayerAngles();
+    bombAngles = (level.bomb2.angles[0], playerAngles[1] + 90, level.bomb2.angles[2]);
+    level.bomb2 rotateTo(bombAngles, 0.01);
+    self iPrintln("MoveBomb function completed.");
+    self iPrintln(level.bomb2.origin);
+    self iPrintln(level.bomb2.angles);
+}
+
+
+
+MoveBomb()
+{
+    self iPrintln("MoveBomb function started.");
+
+    // Move the bomb 150 units in front, and 15 below the player
+    // The bomb has to be placed a little lower because it's too high to jump on it
+    level.bomb.origin = self ProjectForward(150) - (0, 0, 15);
+
+    // Rotate the bomb according to where the player is currently looking
+    playerAngles = self getPlayerAngles();
+    bombAngles = (level.bomb.angles[0], playerAngles[1] + 90, level.bomb.angles[2]);
+    level.bomb rotateTo(bombAngles, 0.01);
+    self iPrintln("MoveBomb function completed.");
+    self iPrintln(level.bomb.origin);
+    self iPrintln(level.bomb.angles);
+}
+Spawnbombtoggle1()
+{
+    if(self.bomb1toggle == false)
+    {
+        self iPrintln("^7Bomb1  ^2Selected ^1- ^7Hold [{+smoke}]  In Ufo To Spawn A Bomb");
+        self.bomb1toggle = true;
+	level.selectbomb1 = "^2Bomb 1";
+	self.bomb1print = "^2 --->";
+	level.bomb1user = self.name;
+    }
+    else
+    {
+        self notify("stop_forge");
+        self iPrintln("^7Bomb1 ^1Deselected");
+        self.bomb1toggle = false;
+	level.selectbomb1 = "^1Bomb 1";
+	self.bomb1print = "";
+	level.bomb1user = "";
+    }
+}
+Spawnbombtoggle2()
+{
+    if(self.bomb2toggle == false)
+    {
+        self iPrintln("^7Bomb2  ^2Selected ^1- ^7Hold [{+smoke}]  In Ufo To Spawn A Bomb");
+        self.bomb2toggle = true;
+	level.selectbomb2 = "^2Bomb 2";
+	self.bomb2print = "^2 --->";
+	level.bomb2user = self.name;	
+    }
+    else
+    {
+        self iPrintln("^7Bomb2 ^1Deselected");
+        self.bomb2toggle = false;
+	self.bomb2toggleprint = "^1Deselected";
+	level.selectbomb2 = "^1Bomb 2";
+	self.bomb2print = "";
+	level.bomb2user = "";
+    }
+}
+Spawnbombtoggle3()
+{
+    if(self.bomb3toggle == false)
+    {
+        self iPrintln("^7Bomb3  ^2Selected ^1- ^7Hold [{+smoke}]  In Ufo To Spawn A Bomb");
+        self.bomb3toggle = true;
+	level.selectbomb3 = "^2Bomb 3";
+	self.bomb3print = "^2 --->";
+    }
+    else
+    {
+        self iPrintln("^7Bomb3 ^1Deselected");
+        self.bomb3toggle = false;
+	level.selectbomb3 = "^1Bomb 3";
+	self.bomb3print = "";
+	level.bomb3user = "";
+    }
+}
+Spawnbombtoggle4()
+{
+    if(self.bomb4toggle == false)
+    {
+        self iPrintln("^7Bomb4  ^2Selected ^1- ^7Hold [{+smoke}]  In Ufo To Spawn A Bomb");
+        self.bomb4toggle = true;
+	level.selectbomb4 = "^2Bomb 4";
+	self.bomb4print = "^2 --->";
+	level.bomb4user = self.name;
+    }
+    else
+    {
+        self iPrintln("^7Bomb4 ^1Deselected");
+        self.bomb4toggle = false;
+	level.selectbomb4 = "^1Bomb 4";
+	self.bomb4print = "";
+	level.bomb4user = "";
+    }
+}
+
+slopebomb10()
+{
+	if(self.bomb1toggle)
+	{
+		angles = (level.bomb.angles[0] + 10, level.bomb.angles[1], level.bomb.angles[2]);
+		level.bomb rotateTo(angles, 0.01);	
+	}
+	else if(self.bomb2toggle)
+	{
+		angles = (level.bomb2.angles[0] + 10, level.bomb2.angles[1], level.bomb2.angles[2]);
+		level.bomb2 rotateTo(angles, 0.01);	
+	}
+	if(self.bomb3toggle)
+	{
+		angles = (level.bomb3.angles[0] + 10, level.bomb3.angles[1], level.bomb3.angles[2]);
+		level.bomb3 rotateTo(angles, 0.01);	
+	}
+	else if(self.bomb4toggle)
+	{
+		angles = (level.bomb4.angles[0] + 10, level.bomb4.angles[1], level.bomb4.angles[2]);
+		level.bomb4 rotateTo(angles, 0.01);	
+	}
+}
+slopebombminus10()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{	
+		if(self.bomb1toggle)
+		{
+			angles = (level.bomb.angles[0] - 10, level.bomb.angles[1], level.bomb.angles[2]);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{
+			angles = (level.bomb2.angles[0] - 10, level.bomb2.angles[1], level.bomb2.angles[2]);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb3toggle)
+		{
+			angles = (level.bomb3.angles[0] - 10, level.bomb3.angles[1], level.bomb3.angles[2]);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (level.bomb4.angles[0] - 10, level.bomb4.angles[1], level.bomb4.angles[2]);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+
+rotatebomb10()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{
+
+		if(self.bomb1toggle)
+		{
+			angles = (level.bomb.angles[0], level.bomb.angles[1] + 10, level.bomb.angles[2]);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{
+			angles = (level.bomb2.angles[0], level.bomb2.angles[1] + 10, level.bomb2.angles[2]);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb3toggle)
+		{
+			angles = (level.bomb3.angles[0], level.bomb3.angles[1] + 10, level.bomb3.angles[2]);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (level.bomb4.angles[0], level.bomb4.angles[1] + 10, level.bomb4.angles[2]);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+
+rotatebomb90()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{
+		if(self.bomb1toggle)
+		{
+			angles = (level.bomb.angles[0], level.bomb.angles[1] + 90, level.bomb.angles[2]);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{
+			angles = (level.bomb2.angles[0], level.bomb2.angles[1] + 90, level.bomb2.angles[2]);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb3toggle)
+		{
+			angles = (level.bomb3.angles[0], level.bomb3.angles[1] + 90, level.bomb3.angles[2]);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (level.bomb4.angles[0], level.bomb4.angles[1] + 90, level.bomb4.angles[2]);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+rotatebombminus10()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{
+		if(self.bomb1toggle)
+		{
+			angles = (level.bomb.angles[0], level.bomb.angles[1] - 10, level.bomb.angles[2]);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{	
+			angles = (level.bomb2.angles[0], level.bomb2.angles[1] - 10, level.bomb2.angles[2]);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb3toggle)
+		{
+			angles = (level.bomb3.angles[0], level.bomb3.angles[1] - 10, level.bomb3.angles[2]);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (level.bomb4.angles[0], level.bomb4.angles[1] - 10, level.bomb4.angles[2]);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+
+tiltbomb10()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{
+		if(self.bomb1toggle)
+		{
+			angles = (level.bomb.angles[0], level.bomb.angles[1], level.bomb.angles[2] + 10);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{
+			angles = (level.bomb2.angles[0], level.bomb2.angles[1], level.bomb2.angles[2] + 10);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb3toggle)
+		{
+			angles = (level.bomb3.angles[0], level.bomb3.angles[1], level.bomb3.angles[2] + 10);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (level.bomb4.angles[0], level.bomb4.angles[1], level.bomb4.angles[2] + 10);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+
+tiltbombminus10()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{
+		if(self.bomb1toggle)
+		{
+			angles = (level.bomb.angles[0], level.bomb.angles[1], level.bomb.angles[2] - 10);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{
+			angles = (level.bomb2.angles[0], level.bomb2.angles[1], level.bomb2.angles[2] - 10);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb3toggle)
+		{
+			angles = (level.bomb3.angles[0], level.bomb3.angles[1], level.bomb3.angles[2] - 10);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (level.bomb4.angles[0], level.bomb4.angles[1], level.bomb4.angles[2] - 10);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+
+resetbomb10()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{
+		if(self.bomb1toggle)
+		{
+			angles = (0, 0, 0);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{
+			angles = (0, 0, 0);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		if(self.bomb3toggle)
+		{
+			angles = (0, 0, 0);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (0, 0, 0);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+
+slopebomb90()
+{
+	if(self.bomb1toggle && !self.bomb2toggle || self.bomb2toggle && !self.bomb1toggle || !self.bomb1toggle && !self.bomb2toggle)
+	{
+		if(self.bomb1toggle)
+		{
+			angles = (level.bomb.angles[0] + 90, level.bomb.angles[1], level.bomb.angles[2]);
+			level.bomb rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb2toggle)
+		{
+			angles = (level.bomb2.angles[0] + 90, level.bomb2.angles[1], level.bomb2.angles[2]);
+			level.bomb2 rotateTo(angles, 0.01);	
+		}
+		if(self.bomb3toggle)
+		{
+			angles = (level.bomb3.angles[0] + 90, level.bomb3.angles[1], level.bomb3.angles[2]);
+			level.bomb3 rotateTo(angles, 0.01);	
+		}
+		else if(self.bomb4toggle)
+		{
+			angles = (level.bomb4.angles[0] + 90, level.bomb4.angles[1], level.bomb4.angles[2]);
+			level.bomb4 rotateTo(angles, 0.01);	
+		}
+	}
+	else
+	{
+		self iPrintln("Deselect A Bomb!");
+	}
+}
+
+ProjectForward(distance)
+{
+    if (!isPlayer(self))
+        return;
+
+    origin = self getOrigin();
+    angles = self getPlayerAngles();
+    forwardVec = anglesToForward(angles) * distance;
+
+    return origin + (forwardVec[0], forwardVec[1], 0);
+}
+
+test1()
+{
+    if (isDefined(level.bombBrushModel))
+    {
+        self iPrintln("Bomb Brush Model Properties:");
+        if (isDefined(level.bombBrushModel.classname))
+            self iPrintln("Classname: " + level.bombBrushModel.classname);
+        else
+            self iPrintln("Classname: N/A");
+
+        if (isDefined(level.bombBrushModel.targetname))
+            self iPrintln("Targetname: " + level.bombBrushModel.targetname);
+        else
+            self iPrintln("Targetname: N/A");
+    }
+
+    if (isDefined(level.bomb))
+    {
+        self iPrintln("Bomb Properties:");
+        if (isDefined(level.bomb.classname))
+            self iPrintln("Classname: " + level.bomb.classname);
+        else
+            self iPrintln("Classname: N/A");
+
+        if (isDefined(level.bomb.targetname))
+            self iPrintln("Targetname: " + level.bomb.targetname);
+        else
+            self iPrintln("Targetname: N/A");
+    }
+}
+//tank info targetname destructible, gameobj vehicle, classname script_vehicle, origin 1409 -272
+printbrushmodels2()
+{
+    entities = getEntArray();
+    for (i = 0; i < entities.size; i++)
+    {
+        if (entities[i].classname == "script_brushmodel")
+        {
+            self iPrintlnBold("Entry:" + i);
+            self iPrintlnBold("classname = " + entities[i].classname + ", targetname = " + entities[i].targetname);
+            self iPrintlnBold("origin = " + entities[i].origin + ", gameobjname = " + entities[i].script_gameobjectname);
+            
+            self iPrintln("team = " + entities[i].team + ", model = " + entities[i].model);
+            wait 1;
+        }
+    }
+}
+
+printbrushmodels()
+{
+    entities = getEntArray();
+    for (i = 0; i < entities.size; i++)
+    {
+        if (entities[i].origin[1] == 1356)
+        {
+	    self iPrintlnBold("Entry:" + i);
+            self iPrintlnBold("classname = " + entities[i].classname + ", targetname = " + entities[i].targetname);
+	    
+	    self iPrintln("Entry:" + i);
+	    self iPrintln("origin = " + entities[i].origin + ", gameobjname = " + entities[i].script_gameobjectname);
+            wait 1;
+        }
+    }
+}
+
+PrintAllEntities()
+{
+    entities = getEntArray();
+    
+    // Loop through all the entities
+    for (i = 0; i < entities.size; i++)
+    {
+        entity = entities[i];
+
+        // Only print entities with script_gameobjectname defined
+        if (isDefined(entity.script_gameobjectname))
+        {
+            // Print basic properties of the entity
+            self iPrintlnBold("Entity " + i + ":");
+            self iPrintln("Classname: " + entity.classname);
+            self iPrintln("Script GameObject Name: " + entity.script_gameobjectname);
+
+            // Check and print origin
+            if (isDefined(entity.origin))
+                self iPrintln("Origin: " + entity.origin);
+            else
+                self iPrintln("Origin: N/A");
+
+            // Check and print angles
+            if (isDefined(entity.angles))
+                self iPrintln("Angles: " + entity.angles);
+            else
+                self iPrintln("Angles: N/A");
+
+            // Check and print target
+            if (isDefined(entity.target))
+                self iPrintln("classname: " + entity.classname);
+            else
+                self iPrintln("classname: N/A");
+
+            // Check and print model
+            if (isDefined(entity.model))
+                self iPrintln("Model: " + entity.model);
+            else
+                self iPrintln("Model: N/A");
+	    
+	    wait 1;
+
+            // Check and print FXID
+            if (isDefined(entity.fxid))
+                self iPrintlnbold("classname: " + entity.classname);
+            else
+                self iPrintlnbold("classname: N/A");
+
+            // Check and print targetname
+            if (isDefined(entity.targetname))
+                self iPrintlnbold("Targetname: " + entity.targetname);
+            else
+                self iPrintlnbold("Targetname: N/A");
+
+	    // Check and print script_gameobjectname
+            if (isDefined(entity.script_gameobjectname))
+                self iPrintlnbold("gameobjectname: " + entity.script_gameobjectname);
+            else
+                self iPrintlnbold("gameobjectname: N/A");
+
+            wait 1; // Add a short delay between prints to avoid flooding the console
+	    
+        }
+    }
+}
+
+
+
+
